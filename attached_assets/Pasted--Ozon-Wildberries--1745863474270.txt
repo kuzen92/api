@@ -1,0 +1,196 @@
+# Сервис для переноса товаров с Ozon на Wildberries
+
+Сервис предназначен для автоматизированного переноса товаров с маркетплейса Ozon на Wildberries. Решает проблему различий в структуре данных между платформами и упрощает работу продавцов с несколькими маркетплейсами.
+
+## Основные возможности
+
+- Импорт товаров из Ozon с полным набором характеристик
+- Автоматическое сопоставление категорий и характеристик между платформами
+- Трансформация данных в формат, требуемый Wildberries
+- Загрузка изображений с учетом требований Wildberries
+- Создание карточек товаров на Wildberries
+- Настройка цен и остатков
+- Отслеживание статуса миграции товаров
+- Управление историей миграций
+
+## Технический стек
+
+### Бэкенд
+- Python 3.9+
+- FastAPI для RESTful API
+- Celery для асинхронных задач
+- PostgreSQL для хранения данных
+- Redis для кэширования и очередей
+
+### Фронтенд (в разработке)
+- React.js / Vue.js
+- TypeScript
+- Material UI / Tailwind CSS
+
+### Инфраструктура
+- Docker & Docker Compose
+- Nginx
+- S3-совместимое хранилище для изображений
+
+## Структура проекта
+
+```
+docs/                   # Документация
+├── api_endpoints.md        # Документация по API эндпоинтам
+├── database_schema.md      # Схема базы данных
+├── development_plan.md     # План разработки
+├── ozon_api_overview.md    # Обзор API Ozon
+├── web_service_architecture.md  # Архитектура веб-сервиса
+└── wildberries_api_overview.md  # Обзор API Wildberries
+
+diagrams/               # Диаграммы
+└── architecture.drawio      # Архитектура системы
+
+src/                    # Исходный код проекта
+├── backend/            # Бэкенд приложение
+│   └── api/            # API интерфейсы
+│       ├── core/       # Основная бизнес-логика
+│       │   ├── ozon/   # Интеграция с Ozon
+│       │   ├── wildberries/ # Интеграция с Wildberries
+│       │   ├── mappers/    # Маппинг данных между платформами
+│       │   └── migration/  # Сервисы миграции
+│       └── utils/      # Вспомогательные функции
+
+examples/               # Примеры использования
+└── migration_example.py    # Пример миграции товаров
+
+requirements.txt        # Зависимости проекта
+```
+
+## Установка и запуск
+
+### Предварительные требования
+- Python 3.9+
+- Git
+- Docker и Docker Compose (опционально)
+- PostgreSQL 13+ (опционально, если не используется Docker)
+- Redis (опционально, если не используется Docker)
+
+### Установка
+
+1. Клонирование репозитория
+```bash
+git clone https://github.com/your-username/ozon-to-wb-migration.git
+cd ozon-to-wb-migration
+```
+
+2. Создание виртуального окружения
+```bash
+python -m venv venv
+source venv/bin/activate  # для Linux/Mac
+venv\Scripts\activate     # для Windows
+```
+
+3. Установка зависимостей
+```bash
+pip install -r requirements.txt
+```
+
+### Запуск примера миграции
+
+```bash
+python examples/migration_example.py
+```
+
+### Запуск с использованием Docker (в разработке)
+
+```bash
+# Сборка образов
+docker-compose build
+
+# Запуск всех сервисов
+docker-compose up -d
+```
+
+## Использование
+
+### Пример миграции товаров с Ozon на Wildberries
+
+Для запуска примера миграции товаров выполните:
+
+```bash
+python examples/migration_example.py
+```
+
+Процесс выполнения:
+
+1. Введите данные для подключения к API Ozon и Wildberries
+2. Скрипт получит список ваших товаров с Ozon
+3. Выберите товары для миграции, указав их номера через запятую
+4. Запустится процесс миграции выбранных товаров
+5. Результаты миграции будут выведены на экран и сохранены в JSON-файл
+
+### Использование библиотеки в своем коде
+
+```python
+from src.backend.api.core.ozon import OzonClient
+from src.backend.api.core.wildberries import WildberriesClient
+from src.backend.api.core.migration import MigrationService
+
+# Создаем клиенты для API маркетплейсов
+ozon_client = OzonClient(client_id="your_client_id", api_key="your_api_key")
+wb_client = WildberriesClient(api_key="your_api_key")
+
+# Создаем сервис миграции
+migration_service = MigrationService()
+
+# Запускаем процесс миграции
+result = migration_service.migrate_ozon_to_wildberries(
+    ozon_client=ozon_client,
+    wb_client=wb_client,
+    product_ids=["12345", "67890"],
+    options={
+        "max_workers": 5,
+        "update_prices": True,
+        "update_stocks": True
+    }
+)
+
+# Обрабатываем результат
+print(f"Успешно обработано: {result['successful']} товаров")
+```
+
+## Документация
+
+Подробная документация доступна в директории `docs/`:
+- [API эндпоинты](docs/api_endpoints.md)
+- [Схема базы данных](docs/database_schema.md)
+- [Обзор API Ozon](docs/ozon_api_overview.md)
+- [Обзор API Wildberries](docs/wildberries_api_overview.md)
+- [Архитектура веб-сервиса](docs/web_service_architecture.md)
+- [План разработки](docs/development_plan.md)
+
+## Дорожная карта
+
+- [x] Анализ API обоих маркетплейсов
+- [x] Разработка плана проекта
+- [x] Создание базовой архитектуры
+- [x] Интеграция с API Ozon
+- [x] Интеграция с API Wildberries
+- [x] Реализация сервиса маппинга
+- [ ] Разработка веб-интерфейса
+- [ ] Разработка системы аутентификации и авторизации
+- [ ] Хранение и управление историей миграций
+- [ ] Автоматическая синхронизация цен и остатков
+- [ ] Статистика и аналитика успешности миграций
+- [ ] Многопользовательская система с разделением прав доступа
+- [ ] Расширение для других маркетплейсов (Яндекс.Маркет, СБЕР Мегамаркет и т.д.)
+
+## Содействие проекту
+
+Мы приветствуем вклад в проект! Для этого:
+
+1. Сделайте форк репозитория
+2. Создайте свою ветку (`git checkout -b feature/amazing-feature`)
+3. Внесите изменения и зафиксируйте их (`git commit -m 'Добавлена новая функция'`)
+4. Отправьте изменения в свой форк (`git push origin feature/amazing-feature`)
+5. Создайте Pull Request
+
+## Лицензия
+
+Этот проект лицензирован под [MIT License](LICENSE). 
